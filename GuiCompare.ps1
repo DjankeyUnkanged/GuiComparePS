@@ -39,40 +39,42 @@ function Show-MessageBox {
 
 # Function to display a dialog box for selecting a hashing algorithm
 function Select-HashAlgorithm {
-    $window = New-Object System.Windows.Window
-    $window.Title = "Select Hash Algorithm"
-    $window.WindowStartupLocation = "CenterScreen"
-	$window.Topmost = $true
-	$window.Width = 350
-	$window.Height = 150
+    # Define XAML for the window
+    $xaml = @"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select Hash Algorithm" Height="150" Width="350" WindowStartupLocation="CenterScreen" Topmost="True">
+    <StackPanel Margin="10">
+        <Label Content="Choose a hashing algorithm:"/>
+        <ComboBox Name="comboBox" Margin="0,10,0,10">
+            <ComboBoxItem Content="SHA1"/>
+            <ComboBoxItem Content="SHA256" IsSelected="True"/>
+            <ComboBoxItem Content="SHA384"/>
+            <ComboBoxItem Content="SHA512"/>
+            <ComboBoxItem Content="MD5"/>
+        </ComboBox>
+        <Button Name="Button" Content="OK" Width="75" HorizontalAlignment="Left"/>
+    </StackPanel>
+</Window>
+"@
 
-    $stackPanel = New-Object System.Windows.Controls.StackPanel
-    $stackPanel.Margin = "10"
+    # Load the XAML
+    $reader = [System.Xml.XmlReader]::Create((New-Object System.IO.StringReader $xaml))
+    $window = [Windows.Markup.XamlReader]::Load($reader)
 
-    $label = New-Object System.Windows.Controls.Label
-    $label.Content = "Choose a hashing algorithm:"
-    $stackPanel.Children.Add($label)
+    # Find the elements
+    $comboBox = $window.FindName("comboBox")
+    $Button = $window.FindName("Button")
 
-    $comboBox = New-Object System.Windows.Controls.ComboBox
-    $comboBox.Margin = "0,10,0,10"
-    $comboBox.ItemsSource = @("SHA1", "SHA256", "SHA384", "SHA512", "MD5")
-    $comboBox.SelectedIndex = 1
-    $stackPanel.Children.Add($comboBox)
-
-    $button = New-Object System.Windows.Controls.Button
-    $button.Content = "OK"
-    $button.Width = 75
-    $button.HorizontalAlignment = "Left"
-    $button.Add_Click({
+    # Add event handler for the button
+    $Button.Add_Click({
         $window.DialogResult = $true
         $window.Close()
     })
-    $stackPanel.Children.Add($button)
 
-    $window.Content = $stackPanel
-
+    # Show the window
     if ($window.ShowDialog() -eq $true) {
-        return $comboBox.SelectedItem
+        return $comboBox.SelectedItem.Content
     } else {
         return $null
     }
