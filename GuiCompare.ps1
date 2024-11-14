@@ -37,6 +37,47 @@ function Show-MessageBox {
     return $result
 }
 
+# Function to display a dialog box for selecting a hashing algorithm
+function Select-HashAlgorithm {
+    $window = New-Object System.Windows.Window
+    $window.Title = "Select Hash Algorithm"
+    $window.WindowStartupLocation = "CenterScreen"
+	$window.Topmost = $true
+	$window.Width = 350
+	$window.Height = 150
+
+    $stackPanel = New-Object System.Windows.Controls.StackPanel
+    $stackPanel.Margin = "10"
+
+    $label = New-Object System.Windows.Controls.Label
+    $label.Content = "Choose a hashing algorithm:"
+    $stackPanel.Children.Add($label)
+
+    $comboBox = New-Object System.Windows.Controls.ComboBox
+    $comboBox.Margin = "0,10,0,10"
+    $comboBox.ItemsSource = @("SHA1", "SHA256", "SHA384", "SHA512", "MD5")
+    $comboBox.SelectedIndex = 1
+    $stackPanel.Children.Add($comboBox)
+
+    $button = New-Object System.Windows.Controls.Button
+    $button.Content = "OK"
+    $button.Width = 75
+    $button.HorizontalAlignment = "Left"
+    $button.Add_Click({
+        $window.DialogResult = $true
+        $window.Close()
+    })
+    $stackPanel.Children.Add($button)
+
+    $window.Content = $stackPanel
+
+    if ($window.ShowDialog() -eq $true) {
+        return $comboBox.SelectedItem
+    } else {
+        return $null
+    }
+}
+
 # Define Xaml for progress bar window
 $xamlTemplate = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
